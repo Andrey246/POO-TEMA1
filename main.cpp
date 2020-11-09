@@ -5,25 +5,35 @@ class Premiu {
 
 private:
 	std::string nume_premiu;
+	std::string data_acordarii;
 
 public:
 	Premiu() {}
 
-	Premiu(std::string nume) {
+	Premiu(std::string nume,std::string data_acordarii) {
+
 		this->nume_premiu = nume;
+		this->data_acordarii = data_acordarii;
+
 	}
 
 	Premiu(const Premiu& premiu) {
+
 		this->nume_premiu = premiu.nume_premiu;
+		this->data_acordarii = premiu.data_acordarii;
+
 	}
 
 	Premiu& operator=(const Premiu& premiu) {
+
 		this->nume_premiu = premiu.nume_premiu;
+		this->data_acordarii = premiu.data_acordarii;
+
 		return *this;
 	}
 
 	friend std::ostream& operator<<(std::ostream& out, Premiu& premiu) {
-		out << premiu.nume_premiu;
+		out << "Premiu: "<<premiu.nume_premiu << " Data acordarii: " << premiu.data_acordarii;
 		return out;
 	}
 
@@ -85,12 +95,14 @@ public:
 	Sportiv(const Sportiv& sportiv) {
 		this->nume = sportiv.nume;
 		this->varsta = sportiv.varsta;
+		this->palmares = sportiv.palmares;
 	}
 
 	Sportiv& operator=(const Sportiv& sportiv) {
 
 		this->nume = sportiv.nume;
 		this->varsta = sportiv.varsta;
+		this->palmares = sportiv.palmares;
 
 		return *this;
 
@@ -98,12 +110,11 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& out, Sportiv& sportiv) {
 
-		out <<"Nume: "<<sportiv.nume << " Varsta: " << sportiv.varsta << " Lista premii: " << sportiv.palmares;
+		out <<"Nume: "<<sportiv.nume << " Varsta: " << sportiv.varsta << " \nLista premii:\n" << sportiv.palmares;
 		return out;
 	}
 
 	void AdaugaPremiu(const Premiu& premiu){
-
 		palmares.AdaugaPremiu(premiu);
 	}
 
@@ -114,28 +125,59 @@ class Proba {
 
 private:
 	std::string nume_proba;
+	std::vector<Sportiv> participanti;
+	int start = 0;
+	int durata_proba = 0;
 
 public:
 	Proba(){}
 
-	Proba(std::string nume) {
+	Proba(std::string nume,int durata_proba) {
 		nume_proba = nume;
+		this->durata_proba = durata_proba;
 	}
 
 	Proba(const Proba& proba) {
 		this->nume_proba = proba.nume_proba;
+		this->participanti = proba.participanti;
+		this->durata_proba = proba.durata_proba;
+
 	}
 
 	Proba& operator=(const Proba& proba) {
 		this->nume_proba = proba.nume_proba;
+		this->participanti = proba.participanti;
+		this->durata_proba = proba.durata_proba;
+
 		return *this;
 	}
 
 	friend std::ostream& operator<<(std::ostream& out,Proba& proba) {
-		out << proba.nume_proba;
+		out << "Nume: "<<proba.nume_proba << " Ora incepere: "<< proba.start << '\n' ;
+		out << "Participanti:\n";
+		for (int i = 0; i < proba.participanti.size(); i++)
+			out << proba.participanti[i] << '\n';
+
+	
 		return out;
 	}
 
+	void InscrieParticipant(const Sportiv& sportiv) {
+
+		participanti.push_back(sportiv);
+
+	}
+
+	void SetStartTime(int start) {
+
+		this->start = start;
+
+	}
+
+	int GetTime() {
+
+		return durata_proba;
+	}
 
 	~Proba(){}
 };
@@ -144,44 +186,57 @@ class Concurs {
 
 private:
 	std::string nume;
-	std::vector<Sportiv> lista_sportivi;
-	Proba proba;
+	std::vector<Proba> lista_probe;
+	int ora_inceput = 3;
 
 public:
 
-	Concurs(std::string nume,const Proba& proba) {
+	Concurs(std::string nume) {
 		
 		this->nume = nume;
-		this->proba = proba;
 	}
 
 	Concurs(const Concurs& concurs) {
 
 		this->nume = concurs.nume;
+		this->lista_probe = concurs.lista_probe;
+		this->ora_inceput = concurs.ora_inceput;
+
 	}
 
 	Concurs& operator=(const Concurs& concurs) {
 
 		this->nume = concurs.nume;
+		this->lista_probe = concurs.lista_probe;
+		this->ora_inceput = concurs.ora_inceput;
+
 
 		return *this;
 	}
 
 	friend std::ostream& operator<<(std::ostream& out, Concurs& concurs) {
 
-		out << "Nume concurs: "<<concurs.nume << '\n';
-		out << "Proba: " << concurs.proba <<'\n';
-		out << "Participanti:\n";
-
-		for (int i = 0; i < concurs.lista_sportivi.size(); i++)
-			out << concurs.lista_sportivi[i] << '\n';
-
+		out << concurs.nume <<'\n';
+		for (int i = 0; i < concurs.lista_probe.size(); i++)
+			out << concurs.lista_probe[i] << '\n';
+	   
 		return out;
 	}
 
-	void InscrieSportiv(const Sportiv& sportiv) {
+	void AdaugaProba(const Proba& proba) {
 
-		lista_sportivi.push_back(sportiv);
+		lista_probe.push_back(proba);
+	}
+
+	void ProgrameazaProbe() {
+
+		int timp = ora_inceput;
+
+		for (int i = 0; i < this->lista_probe.size(); i++) {
+			this->lista_probe[i].SetStartTime(timp);
+			timp += this->lista_probe[i].GetTime();
+		}
+		
 	}
 
 	~Concurs(){}
@@ -189,19 +244,22 @@ public:
 
 int main() {
 
-	Sportiv s0("Ionel Popa", 24), s1("Liviu Pana", 31),s2;
-	s2 = s0;
-	Premiu p1("1st tennis player"), p2("2nd football player"), p3("3rd chess player");
-	s1.AdaugaPremiu(p1);
-	s1.AdaugaPremiu(p2);
-	s2.AdaugaPremiu(p1);
+	Sportiv sp1("Ionescu", 23), sp2("Ionel", 21);
+    sp1.AdaugaPremiu(Premiu("Locul 2 football", "12-01-2020"));
+	sp1.AdaugaPremiu(Premiu("Locul 1 maraton", "01-01-2001"));
 
-	Proba b1("Alergare");
-	Concurs c1("Maraton Bucuresti 2020",b1);
+	sp2.AdaugaPremiu(Premiu("locul 2 culturism", "21-10-2019"));
 
-	c1.InscrieSportiv(s1);
-	c1.InscrieSportiv(s2);
+	Proba prob1("alergare", 80), prob2("tenis", 90);
+	prob1.InscrieParticipant(sp1);
+	prob2.InscrieParticipant(sp2);
 
-	std::cout << c1;
 
+	Concurs conc("Bucharest Fitness 2021");
+	conc.AdaugaProba(prob1);
+	conc.AdaugaProba(prob2);
+
+	conc.ProgrameazaProbe();
+
+	std::cout << conc;
 }
