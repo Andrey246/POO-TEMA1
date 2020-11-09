@@ -144,6 +144,7 @@ public:
 		this->nume_proba = proba.nume_proba;
 		this->participanti = proba.participanti;
 		this->durata_proba = proba.durata_proba;
+		this->start = proba.start;
 
 	}
 
@@ -151,6 +152,7 @@ public:
 		this->nume_proba = proba.nume_proba;
 		this->participanti = proba.participanti;
 		this->durata_proba = proba.durata_proba;
+		this->start = proba.start;
 
 		return *this;
 	}
